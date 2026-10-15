@@ -1,0 +1,30 @@
+<div class="application-shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/dashboard" aria-label="PromptPilot AI dashboard">
+      <span class="brand-mark"><lucide-icon name="sparkles" [size]="19"></lucide-icon></span>
+      <span>PromptPilot <b>AI</b></span>
+    </a>
+
+    <p class="sidebar-label">Workspace</p>
+    <nav aria-label="Primary navigation">
+      <a routerLink="/dashboard" routerLinkActive="active"><lucide-icon name="layout-dashboard" [size]="18"></lucide-icon> Dashboard</a>
+      <a routerLink="/workspace" routerLinkActive="active"><lucide-icon name="wand-sparkles" [size]="18"></lucide-icon> New analysis</a>
+      <a routerLink="/history" routerLinkActive="active"><lucide-icon name="history" [size]="18"></lucide-icon> Prompt history</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/settings" routerLinkActive="active"><lucide-icon name="settings" [size]="18"></lucide-icon> Settings</a>
+      <div class="security-note"><lucide-icon name="shield-alert" [size]="16"></lucide-icon><span>Context stays in your browser history.</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="app-header">
+      <div class="header-context"><span class="eyebrow">Prompt engineering workspace</span></div>
+      <a class="connection-status" routerLink="/settings" [class.connected]="gemini.hasApiKey()">
+        <i></i>{{ gemini.hasApiKey() ? 'Gemini key configured' : 'Gemini key required' }}
+      </a>
+    </header>
+    <router-outlet></router-outlet>
+  </main>
+</div>

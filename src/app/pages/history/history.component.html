@@ -1,0 +1,20 @@
+<section class="page history-page">
+  <div class="page-heading heading-with-action"><div><p class="eyebrow">Local history</p><h1>Prompt analyses</h1><p class="page-subtitle">Saved in this browser only. API keys are never included.</p></div><a class="button button-primary" routerLink="/workspace"><lucide-icon name="plus" [size]="17"></lucide-icon> New analysis</a></div>
+
+  <p *ngIf="feedback" class="mini-feedback"><lucide-icon name="check-circle-2" [size]="15"></lucide-icon> {{ feedback }}</p>
+  <div class="history-controls">
+    <label class="search-field"><lucide-icon name="clipboard" [size]="16"></lucide-icon><input [(ngModel)]="search" type="search" placeholder="Search title, prompt, or ticket"></label>
+    <label>Type<select [(ngModel)]="actionFilter"><option value="all">All results</option><option value="analyze">Analyzed</option><option value="optimize">Optimized</option><option value="reevaluate">Reevaluated</option></select></label>
+    <label>Order<select [(ngModel)]="sortOrder"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label>
+  </div>
+
+  <div *ngIf="filteredEntries.length; else noHistory" class="history-list">
+    <article *ngFor="let entry of filteredEntries" class="history-card">
+      <div class="history-card-top"><div class="history-mark"><lucide-icon name="file-text" [size]="19"></lucide-icon></div><div class="history-heading"><h2>{{ entry.title }}</h2><p>{{ entry.updatedAt | date:'medium' }} · {{ actionLabel(entry.action) }}</p></div><span class="history-score" [class.good]="entry.result.overallScore >= 75">{{ entry.result.overallScore }}/100</span></div>
+      <p class="history-summary">{{ entry.result.summary }}</p>
+      <div class="history-meta"><span><strong>{{ entry.result.issues.length }}</strong> issues</span><span><strong>{{ entry.result.missingRequirements.length }}</strong> missing requirements</span><span><strong>{{ entry.result.clarifyingQuestions.length }}</strong> questions</span></div>
+      <div class="history-actions"><button type="button" class="button button-secondary" (click)="open(entry)"><lucide-icon name="file-text" [size]="15"></lucide-icon> Open</button><button type="button" class="button button-ghost" (click)="duplicate(entry)"><lucide-icon name="copy" [size]="15"></lucide-icon> Duplicate</button><button type="button" class="plain-action" (click)="rename(entry)">Rename</button><button type="button" class="plain-action destructive" (click)="remove(entry)"><lucide-icon name="trash-2" [size]="14"></lucide-icon> Delete</button></div>
+    </article>
+  </div>
+  <ng-template #noHistory><div class="empty-state history-empty"><span><lucide-icon name="history" [size]="28"></lucide-icon></span><h2>No saved analyses yet</h2><p>Run a Gemini analysis from the workspace and it will appear here after a successful response.</p><a class="button button-primary" routerLink="/workspace">Start an analysis</a></div></ng-template>
+</section>

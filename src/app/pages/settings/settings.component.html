@@ -1,0 +1,18 @@
+<section class="page settings-page">
+  <div class="page-heading"><p class="eyebrow">Configuration</p><h1>Settings</h1><p class="page-subtitle">Configure Gemini for this local proof of concept and manage browser-only history.</p></div>
+
+  <div *ngIf="statusMessage" class="notice" [class.notice-success]="statusType === 'success'" [class.notice-error]="statusType === 'error'"><lucide-icon [name]="statusType === 'error' ? 'alert-triangle' : statusType === 'success' ? 'check-circle-2' : 'lightbulb'" [size]="17"></lucide-icon>{{ statusMessage }}</div>
+
+  <section class="settings-card key-card">
+    <div class="settings-icon"><lucide-icon name="sparkles" [size]="21"></lucide-icon></div>
+    <div class="settings-content"><div class="settings-heading"><div><h2>Gemini API key</h2><p>Selected model: <code>{{ gemini.model }}</code></p></div><span class="key-status" [class.configured]="gemini.hasApiKey()"><i></i>{{ gemini.hasApiKey() ? 'Configured' : 'Not configured' }}</span></div>
+      <div class="warning"><lucide-icon name="shield-alert" [size]="17"></lucide-icon><p><strong>Local/internal POC only.</strong> A frontend API key is visible to anyone using a deployed app. Do not use this approach for a public production app; route requests through a secured backend instead.</p></div>
+      <form [formGroup]="form" (ngSubmit)="saveSessionKey()"><label for="api-key">Session-only key</label><div class="key-input-row"><input id="api-key" formControlName="apiKey" type="password" autocomplete="off" placeholder="Paste a Gemini API key"><button type="submit" class="button button-primary">Use for this session</button></div><p class="input-help">The field clears after applying. This app does not save the key to localStorage, history, exports, or logs.</p></form>
+      <div class="settings-actions"><button type="button" class="button button-secondary" [disabled]="testing" (click)="testConnection()"><lucide-icon *ngIf="testing" name="loader-2" [size]="16" class="spin"></lucide-icon><lucide-icon *ngIf="!testing" name="check-circle-2" [size]="16"></lucide-icon> Test connection</button><button type="button" class="button button-ghost" [disabled]="!gemini.hasApiKey()" (click)="clearSessionKey()">Clear session key</button></div>
+    </div>
+  </section>
+
+  <section class="settings-card"><div class="settings-icon storage-icon"><lucide-icon name="history" [size]="21"></lucide-icon></div><div class="settings-content"><h2>Local analysis history</h2><p>Successful analyses, their supplied context, and generated results are stored in this browser so they survive refreshes. You can delete individual items from History or clear everything here.</p><button type="button" class="button danger-button" (click)="clearHistory()"><lucide-icon name="trash-2" [size]="16"></lucide-icon> Clear all local history</button></div></section>
+
+  <section class="setup-note"><h2>Optional environment configuration</h2><p>For a developer-only local setup, you can place a key in <code>src/environments/environment.ts</code> under <code>gemini.apiKey</code>. Keep the placeholder in source control and never commit a real key. The session-only field above is safer for quick testing because it is never persisted.</p></section>
+</section>

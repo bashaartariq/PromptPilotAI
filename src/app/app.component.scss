@@ -1,0 +1,32 @@
+:host { display: block; min-height: 100vh; }
+
+.application-shell { min-height: 100vh; display: flex; }
+.sidebar { background: #101624; border-right: 1px solid #242d42; color: #cad1e2; display: flex; flex: 0 0 245px; flex-direction: column; min-height: 100vh; padding: 25px 14px 18px; }
+.brand { align-items: center; color: #f5f7ff; display: flex; font-size: 18px; font-weight: 650; gap: 10px; margin: 0 8px 39px; text-decoration: none; }
+.brand b { color: #9f8cff; font-weight: 700; }
+.brand-mark { align-items: center; background: linear-gradient(145deg, #7656ec, #a074ff); border-radius: 9px; display: inline-flex; height: 34px; justify-content: center; width: 34px; }
+.sidebar-label { color: #6f7c99; font-size: 10px; font-weight: 700; letter-spacing: .12em; margin: 0 12px 8px; text-transform: uppercase; }
+nav { display: grid; gap: 3px; }
+.sidebar a:not(.brand) { align-items: center; border-radius: 8px; color: #aeb8ce; display: flex; font-size: 14px; gap: 12px; padding: 11px 12px; text-decoration: none; }
+.sidebar a:not(.brand):hover, .sidebar a.active { background: #202942; color: #fafaff; }
+.sidebar a.active { box-shadow: inset 3px 0 #9277ff; }
+.sidebar-footer { border-top: 1px solid #242d42; margin-top: auto; padding-top: 13px; }
+.security-note { align-items: flex-start; color: #71809d; display: flex; font-size: 11px; gap: 8px; line-height: 1.45; margin: 20px 12px 0; }
+.security-note lucide-icon { color: #a78bfa; flex: 0 0 auto; }
+.main-content { background: #0b1020; min-height: 100vh; min-width: 0; width: calc(100% - 245px); }
+.app-header { align-items: center; border-bottom: 1px solid #20293c; display: flex; height: 72px; justify-content: space-between; padding: 0 44px; }
+.eyebrow { color: #8d9bb6; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.connection-status { align-items: center; color: #a8b2c9; display: flex; font-size: 12px; gap: 8px; text-decoration: none; }
+.connection-status i { background: #f59e0b; border-radius: 50%; display: block; height: 7px; width: 7px; }
+.connection-status.connected i { background: #3dd598; box-shadow: 0 0 0 4px rgba(61, 213, 152, .1); }
+
+@media (max-width: 760px) {
+  .sidebar { flex-basis: 64px; padding: 18px 8px; }
+  .brand { margin: 0 auto 35px; }
+  .brand > span:last-child, .sidebar-label, .sidebar a:not(.brand) { font-size: 0; justify-content: center; padding: 12px; }
+  .sidebar a:not(.brand) lucide-icon { width: 20px; }
+  .security-note { display: none; }
+  .main-content { width: calc(100% - 64px); }
+  .app-header { padding: 0 20px; }
+  .eyebrow { display: none; }
+}

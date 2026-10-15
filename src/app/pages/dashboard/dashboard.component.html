@@ -1,0 +1,41 @@
+<section class="page dashboard-page">
+  <div class="page-heading heading-with-action">
+    <div>
+      <p class="eyebrow">Overview</p>
+      <h1>Build prompts with fewer surprises.</h1>
+      <p class="page-subtitle">Review coding prompts against the ticket, technical context, and the risks you already know about.</p>
+    </div>
+    <a class="button button-primary" routerLink="/workspace"><lucide-icon name="plus" [size]="17"></lucide-icon> New analysis</a>
+  </div>
+
+  <div class="stats-grid" aria-label="Prompt analysis statistics">
+    <article class="stat-card"><span class="stat-icon violet"><lucide-icon name="file-text" [size]="20"></lucide-icon></span><div><span class="muted-label">Prompts analyzed</span><strong>{{ stats.totalAnalyzed }}</strong><small>Saved analysis runs</small></div></article>
+    <article class="stat-card"><span class="stat-icon teal"><lucide-icon name="wand-sparkles" [size]="20"></lucide-icon></span><div><span class="muted-label">Prompts optimized</span><strong>{{ stats.totalOptimized }}</strong><small>Ready-to-copy results</small></div></article>
+    <article class="stat-card"><span class="stat-icon amber"><lucide-icon name="save" [size]="20"></lucide-icon></span><div><span class="muted-label">Saved history</span><strong>{{ stats.savedCount }}</strong><small>Stored in this browser</small></div></article>
+  </div>
+
+  <section class="quick-actions" aria-labelledby="quick-actions-title">
+    <div class="section-title-row"><div><p class="eyebrow">Start here</p><h2 id="quick-actions-title">What do you want to do?</h2></div></div>
+    <div class="quick-grid">
+      <a class="quick-card" routerLink="/workspace"><span class="quick-icon"><lucide-icon name="clipboard" [size]="21"></lucide-icon></span><div><h3>Analyze a prompt</h3><p>Find missing requirements, ambiguity, and unsupported assumptions.</p></div><lucide-icon class="arrow" name="chevron-right" [size]="18"></lucide-icon></a>
+      <a class="quick-card" routerLink="/workspace"><span class="quick-icon"><lucide-icon name="sparkles" [size]="21"></lucide-icon></span><div><h3>Optimize a prompt</h3><p>Generate a focused coding-agent instruction with your context included.</p></div><lucide-icon class="arrow" name="chevron-right" [size]="18"></lucide-icon></a>
+      <a class="quick-card" routerLink="/history"><span class="quick-icon"><lucide-icon name="history" [size]="21"></lucide-icon></span><div><h3>Reevaluate a prompt</h3><p>Open a saved result and measure another iteration.</p></div><lucide-icon class="arrow" name="chevron-right" [size]="18"></lucide-icon></a>
+    </div>
+  </section>
+
+  <section class="recent-section" aria-labelledby="recent-title">
+    <div class="section-title-row"><div><p class="eyebrow">Local history</p><h2 id="recent-title">Recent analyses</h2></div><a class="text-link" routerLink="/history">View all <lucide-icon name="chevron-right" [size]="15"></lucide-icon></a></div>
+
+    <div *ngIf="recent.length; else emptyState" class="recent-list">
+      <article class="recent-item" *ngFor="let item of recent">
+        <span class="document-icon"><lucide-icon name="file-text" [size]="18"></lucide-icon></span>
+        <div class="recent-info"><h3>{{ item.title }}</h3><p>{{ item.updatedAt | date:'mediumDate' }} · {{ item.action }}d · Score {{ item.result.overallScore }}/100</p></div>
+        <span class="score-chip" [class.good]="item.result.overallScore >= 75">{{ item.result.overallScore }}</span>
+        <a class="icon-button" routerLink="/workspace" (click)="open(item)" [attr.aria-label]="'Open ' + item.title"><lucide-icon name="chevron-right" [size]="18"></lucide-icon></a>
+      </article>
+    </div>
+    <ng-template #emptyState>
+      <div class="empty-state"><span><lucide-icon name="sparkles" [size]="26"></lucide-icon></span><div><h3>Your review history starts here</h3><p>Run an analysis to see real prompt quality signals and optimized prompts here.</p></div><a class="button button-secondary" routerLink="/workspace">Create your first analysis</a></div>
+    </ng-template>
+  </section>
+</section>

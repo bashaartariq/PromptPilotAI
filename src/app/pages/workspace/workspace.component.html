@@ -1,0 +1,79 @@
+<section class="page workspace-page">
+  <div class="page-heading">
+    <p class="eyebrow">Prompt review</p>
+    <h1>Analyze a coding prompt</h1>
+    <p class="page-subtitle">Give Gemini the ticket and only the context it needs to produce a safer, clearer implementation prompt.</p>
+  </div>
+
+  <div *ngIf="feedback" class="notice" [class.notice-success]="feedbackType === 'success'" [class.notice-error]="feedbackType === 'error'">
+    <lucide-icon [name]="feedbackType === 'error' ? 'alert-triangle' : feedbackType === 'success' ? 'check-circle-2' : 'lightbulb'" [size]="17"></lucide-icon>
+    <span>{{ feedback }}</span>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="run('analyze')" novalidate>
+    <section class="form-card primary-context">
+      <div class="card-heading"><div><span class="section-number">01</span><h2>Existing AI prompt <em>Required</em></h2><p>Paste the instruction you planned to give a coding agent.</p></div><button type="button" class="text-button" (click)="fillExample()"><lucide-icon name="sparkles" [size]="15"></lucide-icon> Load example</button></div>
+      <label class="field-label" for="analysis-title">Analysis title <span>Optional</span></label>
+      <input id="analysis-title" class="text-input compact-input" type="text" formControlName="title" placeholder="e.g. Add invoice status filter">
+      <div class="field-label-row"><label class="field-label" for="original-prompt">Current prompt</label><span>{{ promptLength }} characters</span></div>
+      <textarea id="original-prompt" class="text-area large-area" formControlName="originalPrompt" placeholder="Paste the prompt you would give your coding agent…"></textarea>
+      <div class="field-footer"><span *ngIf="form.controls.originalPrompt.touched && form.controls.originalPrompt.invalid" class="field-error">Please enter at least 20 characters.</span><span *ngIf="!form.controls.originalPrompt.touched || form.controls.originalPrompt.valid">A clear prompt is the starting point. The ticket below provides the source of truth.</span><button type="button" class="text-button" (click)="clearPrompt()">Clear prompt</button></div>
+    </section>
+
+    <section class="form-card required-card">
+      <div class="card-heading"><div><span class="section-number">02</span><h2>Related ticket or requirement <em>Required</em></h2><p>Paste the Jira issue, user story, acceptance criteria, or task description.</p></div></div>
+      <textarea id="ticket" class="text-area" formControlName="ticket" placeholder="Describe what needs to be delivered, including acceptance criteria…"></textarea>
+      <span *ngIf="form.controls.ticket.touched && form.controls.ticket.invalid" class="field-error">Please enter at least 10 characters.</span>
+    </section>
+
+    <div class="two-column-form">
+      <section class="form-card">
+        <div class="card-heading"><div><span class="section-number">03</span><h2>Project context <span>Optional</span></h2><p>Stack, relevant files or snippets, conventions, existing patterns, services, APIs, and modules.</p></div></div>
+        <textarea id="project-context" class="text-area" formControlName="projectContext" placeholder="Angular 14, Reactive Forms, existing shared filter component…"></textarea>
+      </section>
+      <section class="form-card">
+        <div class="card-heading"><div><span class="section-number">04</span><h2>Developer perspective <span>Optional</span></h2><p>Your intended approach, non-negotiables, constraints, and expected output.</p></div></div>
+        <textarea id="developer-instructions" class="text-area" formControlName="developerInstructions" placeholder="Reuse the existing pattern. Do not alter public APIs…"></textarea>
+      </section>
+    </div>
+
+    <section class="form-card">
+      <div class="card-heading"><div><span class="section-number">05</span><h2>Edge cases &amp; potential breaking areas <span>Optional</span></h2><p>Known edge cases, affected modules, API contract risks, backward compatibility, validation, performance, and regression scenarios.</p></div></div>
+      <textarea id="edge-cases" class="text-area short-area" formControlName="edgeCases" placeholder="Examples: empty state, pagination, existing deep links, API consumers, permissions…"></textarea>
+    </section>
+
+    <section class="analysis-controls">
+      <div><strong>Ready to review?</strong><span>Required: an existing prompt and its related ticket.</span></div>
+      <div class="control-buttons">
+        <button type="button" class="button button-ghost" (click)="resetForm()" [disabled]="busy">Reset form</button>
+        <button type="button" class="button button-secondary" (click)="run('analyze')" [disabled]="!canRun"><lucide-icon *ngIf="busy" name="loader-2" [size]="16" class="spin"></lucide-icon><lucide-icon *ngIf="!busy" name="clipboard" [size]="16"></lucide-icon> Analyze prompt</button>
+        <button type="button" class="button button-primary" (click)="run('optimize')" [disabled]="!canRun"><lucide-icon name="wand-sparkles" [size]="16"></lucide-icon> Optimize prompt</button>
+        <button type="button" class="button button-secondary" (click)="run('reevaluate')" [disabled]="!canRun || !result"><lucide-icon name="history" [size]="16"></lucide-icon> Reevaluate</button>
+      </div>
+    </section>
+  </form>
+
+  <section *ngIf="result" [formGroup]="form" class="result-section" aria-live="polite">
+    <div class="result-heading"><div><p class="eyebrow">Gemini result</p><h2>Prompt analysis report</h2><p>Scores are AI-generated heuristics, not objective proof of correctness.</p></div><div class="score-orb" [ngClass]="scoreClass(result.overallScore)"><span>{{ result.overallScore }}</span><small>/100</small></div></div>
+    <div *ngIf="previousScore !== null" class="comparison-note"><lucide-icon name="history" [size]="16"></lucide-icon> Previous score: <strong>{{ previousScore }}/100</strong> · Current score: <strong>{{ result.overallScore }}/100</strong></div>
+    <article class="report-card summary-card"><h3>Summary</h3><p>{{ result.summary }}</p></article>
+
+    <div class="report-grid">
+      <article *ngIf="hasItems(result.strengths)" class="report-card"><h3><lucide-icon name="check-circle-2" [size]="17"></lucide-icon> Strengths</h3><ul><li *ngFor="let item of result.strengths">{{ item }}</li></ul></article>
+      <article *ngIf="hasItems(result.missingRequirements)" class="report-card"><h3><lucide-icon name="alert-triangle" [size]="17"></lucide-icon> Missing requirements</h3><ul><li *ngFor="let item of result.missingRequirements">{{ item }}</li></ul></article>
+      <article *ngIf="hasItems(result.ambiguities)" class="report-card"><h3><lucide-icon name="lightbulb" [size]="17"></lucide-icon> Ambiguities</h3><ul><li *ngFor="let item of result.ambiguities">{{ item }}</li></ul></article>
+      <article *ngIf="hasItems(result.edgeCases)" class="report-card"><h3><lucide-icon name="shield-alert" [size]="17"></lucide-icon> Edge cases</h3><ul><li *ngFor="let item of result.edgeCases">{{ item }}</li></ul></article>
+      <article *ngIf="hasItems(result.projectPatternGuidance)" class="report-card"><h3><lucide-icon name="file-text" [size]="17"></lucide-icon> Pattern guidance</h3><ul><li *ngFor="let item of result.projectPatternGuidance">{{ item }}</li></ul></article>
+      <article *ngIf="hasItems(result.clarifyingQuestions)" class="report-card"><h3><lucide-icon name="lightbulb" [size]="17"></lucide-icon> Questions to resolve</h3><ul><li *ngFor="let item of result.clarifyingQuestions">{{ item }}</li></ul></article>
+    </div>
+
+    <article *ngIf="hasItems(result.issues)" class="report-card issues-card"><h3><lucide-icon name="alert-triangle" [size]="17"></lucide-icon> Issues found</h3><div class="issue-list"><div class="issue" *ngFor="let issue of result.issues"><span class="severity" [class]="'severity ' + issue.severity">{{ issue.severity }}</span><div><h4>{{ issue.title }}</h4><p>{{ issue.explanation }}</p><p class="suggestion"><strong>Suggestion:</strong> {{ issue.suggestion }}</p></div></div></div></article>
+    <article *ngIf="hasItems(result.breakingRisks)" class="report-card risks-card"><h3><lucide-icon name="shield-alert" [size]="17"></lucide-icon> Potential breaking risks <span>Needs investigation</span></h3><div class="risk-row" *ngFor="let risk of result.breakingRisks"><strong>{{ risk.title }}</strong><p>{{ risk.reason }}</p></div></article>
+
+    <article class="optimized-card"><div class="optimized-heading"><div><p class="eyebrow">Ready to use</p><h3>Optimized coding-agent prompt</h3><p>Edit it before reevaluating if you want to explore another revision.</p></div><div class="result-actions"><button class="icon-label-button" type="button" (click)="copyOptimizedPrompt()"><lucide-icon name="copy" [size]="16"></lucide-icon> Copy</button><button class="icon-label-button" type="button" (click)="downloadPrompt()"><lucide-icon name="download" [size]="16"></lucide-icon> .txt</button></div></div>
+      <textarea class="optimized-text" formControlName="optimizedPrompt"></textarea>
+    </article>
+    <article *ngIf="hasItems(result.verificationChecklist)" class="report-card checklist-card"><h3><lucide-icon name="check-circle-2" [size]="17"></lucide-icon> Verification checklist</h3><label *ngFor="let item of result.verificationChecklist" class="check-item"><input type="checkbox"><span>{{ item }}</span></label></article>
+    <div class="report-footer"><button type="button" class="button button-secondary" (click)="copyReport()"><lucide-icon name="copy" [size]="16"></lucide-icon> Copy report</button><button type="button" class="button button-secondary" (click)="exportAnalysis()"><lucide-icon name="download" [size]="16"></lucide-icon> Export JSON</button></div>
+  </section>
+</section>
